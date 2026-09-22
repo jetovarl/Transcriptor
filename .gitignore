@@ -1,0 +1,22 @@
+# Material de trabajo: nunca se sube. Aqui hay audio y texto de clientes.
+Entrada/*
+Hecho/*
+Salida/*
+!Entrada/.gitkeep
+!Hecho/.gitkeep
+!Salida/.gitkeep
+
+# Modelos descargados y cachés
+*.bin
+*.onnx
+.cache/
+__pycache__/
+*.py[cod]
+
+# Entornos y basura del sistema
+.venv/
+venv/
+env/
+Thumbs.db
+desktop.ini
+.DS_Store
