@@ -8,7 +8,7 @@ Estructura de trabajo (se crea sola la primera vez):
         transcribir.py
         Entrada/   <- ponga aquí los videos o audios a transcribir
         Hecho/     <- los originales ya transcritos se mueven aquí
-        Salida/    <- quedan los .txt y .srt con nombre  <archivo>_transcript
+        Salida/    <- queda el .txt con nombre  <archivo>_transcript.txt
 
 Flujo: lee todo lo que haya en Entrada, transcribe, deja el texto en Salida y mueve
 el original a Hecho. Si un archivo falla, se queda en Entrada para reintentar.
@@ -21,7 +21,7 @@ Desde la terminal, parado en esta carpeta:
     python transcribir.py --lang auto         # detectar el idioma de cada audio
     python transcribir.py --lang en           # forzar inglés
     python transcribir.py --con-tiempos       # el .txt lleva [hh:mm:ss] en cada línea
-    python transcribir.py --no-srt            # generar solo .txt
+    python transcribir.py --srt               # además del .txt, subtítulos .srt
 """
 
 import argparse
@@ -48,12 +48,6 @@ Si prefiere hacerlo a mano, abra una terminal en esta carpeta y corra:
     pip install -r requirements.txt
 """
 
-try:
-    from faster_whisper import WhisperModel
-except ImportError:
-    print(AYUDA_INSTALACION)
-    sys.exit(1)
-
 # El script trabaja relativo a SU PROPIA ubicación (donde lo guarde).
 BASE = Path(__file__).resolve().parent
 ENTRADA = BASE / "Entrada"
@@ -71,6 +65,16 @@ MODELOS_CONOCIDOS = {
 
 # Marcas de OneDrive para un archivo que figura en la carpeta pero vive en la nube.
 ATRIBUTO_EN_LA_NUBE = 0x1000 | 0x400000  # OFFLINE | RECALL_ON_DATA_ACCESS
+
+
+def cargar_motor_o_salir():
+    """Importa faster-whisper solo cuando se va a transcribir de verdad."""
+    try:
+        from faster_whisper import WhisperModel
+    except ImportError:
+        print(AYUDA_INSTALACION)
+        sys.exit(1)
+    return WhisperModel
 
 
 def fmt_tiempo(segundos: float) -> str:
@@ -206,9 +210,14 @@ def main() -> int:
                    help="turbo (rápido, por omisión) | large-v3 (máxima precisión, más lento)")
     p.add_argument("--lang", default="es",
                    help="Idioma del audio: es (por omisión), en, pt... o «auto» para detectarlo")
-    p.add_argument("--no-srt", action="store_true", help="Generar solo .txt (sin .srt)")
+    p.add_argument("--srt", action="store_true",
+                   help="Generar también el archivo de subtítulos .srt (por omisión solo .txt)")
+    # Se acepta en silencio para no romper accesos directos viejos: ya es lo que hace.
+    p.add_argument("--no-srt", action="store_true", help=argparse.SUPPRESS)
     p.add_argument("--con-tiempos", action="store_true",
                    help="El .txt lleva la marca [hh:mm:ss] al inicio de cada línea")
+    # Lo usa el .bat para anunciar cuantos archivos hay antes de empezar.
+    p.add_argument("--contar", action="store_true", help=argparse.SUPPRESS)
     p.add_argument("--dispositivo", default="auto", choices=("auto", "cpu", "gpu"),
                    help="Dónde correr el modelo (por omisión: la tarjeta de video si la hay)")
     a = p.parse_args()
@@ -219,6 +228,10 @@ def main() -> int:
     todo = [f for f in ENTRADA.iterdir() if f.is_file() and not f.name.startswith(".")]
     archivos = sorted(f for f in todo if f.suffix.lower() in EXTENSIONES)
     ignorados = sorted(f.name for f in todo if f.suffix.lower() not in EXTENSIONES)
+
+    if a.contar:
+        print(len(archivos))
+        return 0
 
     if ignorados:
         print("Se ignoran (no son audio ni video): " + ", ".join(ignorados) + "\n")
@@ -236,7 +249,7 @@ def main() -> int:
     print(f"Cargando modelo «{a.model}» en {'la tarjeta de video' if dispositivo == 'cuda' else 'el procesador'}.")
     print("La primera vez se descarga (alrededor de 1 GB) y puede tardar varios minutos.")
     try:
-        modelo = WhisperModel(a.model, device=dispositivo, compute_type=precision)
+        modelo = cargar_motor_o_salir()(a.model, device=dispositivo, compute_type=precision)
     except Exception as e:
         print(f"\n[ERROR] No se pudo cargar el modelo «{a.model}»: {e}")
         print("Revise que tenga internet la primera vez, o pruebe con  --model small")
@@ -247,7 +260,7 @@ def main() -> int:
     t0 = time.time()
     ok, fallidos = 0, []
     for f in archivos:
-        if procesar(f, modelo, lang, not a.no_srt, a.con_tiempos):
+        if procesar(f, modelo, lang, a.srt and not a.no_srt, a.con_tiempos):
             ok += 1
         else:
             fallidos.append(f.name)

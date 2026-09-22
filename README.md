@@ -6,9 +6,21 @@ El audio no sale de su equipo. No se sube a ningún servicio ni se envía a ning
 
 ---
 
+## Cómo descargar esta carpeta
+
+Si nunca ha usado GitHub, no se preocupe: no hay que saber programar ni entender nada de lo que aparece en esta página. GitHub es un archivador donde se guardan programas y se lleva la cuenta de cada cambio, y de aquí se descarga igual que cualquier archivo adjunto.
+
+1. Arriba a la derecha de la lista de archivos hay un botón verde que dice **`Code`**. Óprimalo.
+2. Se abre una lista pequeña. Abajo de todo está **`Download ZIP`**. Esa es la que sirve; las demás son para programadores.
+3. El archivo comprimido queda en su carpeta de Descargas.
+4. **Este paso es el que más se olvida.** Haga clic derecho sobre el archivo descargado y escoja **«Extraer todo»**. Windows deja mirar dentro del comprimido con doble clic y eso engaña, porque parece que ya estuviera listo; si trabaja desde adentro del comprimido, el programa no funciona.
+5. Deje la carpeta que resulta donde quiera, por ejemplo en el Escritorio, y renómbrela a algo corto como `Transcriptor`.
+
+Si al abrir alguno de los archivos Windows muestra una advertencia azul diciendo que protegió el equipo, oprima **«Más información»** y después **«Ejecutar de todas formas»**. Es la desconfianza de rutina de Windows con lo que viene de internet, y ocurre una sola vez por archivo.
+
 ## Instalación (una sola vez)
 
-1. Descargue esta carpeta y déjela donde quiera, por ejemplo en el Escritorio.
+1. Abra la carpeta que acaba de extraer.
 2. Haga doble clic en **`instalar (primera vez).bat`** y espere a que termine.
 3. Si le avisa que no encuentra Python, instálelo desde [python.org/downloads](https://www.python.org/downloads/) y **marque la casilla «Add python.exe to PATH»** en la primera pantalla del instalador. Después vuelva al paso 2.
 
@@ -16,9 +28,18 @@ El audio no sale de su equipo. No se sube a ningún servicio ni se envía a ning
 
 1. Copie sus audios o videos a la carpeta **`Entrada`**.
 2. Haga doble clic en **`Transcribir (doble clic).bat`**.
-3. Cuando termine, el texto queda en **`Salida`** y los archivos originales se mueven a **`Hecho`**.
+3. Pulse **Enter** cuando aparezca el menú, o escoja una de las otras tres opciones.
+4. Al terminar se abre sola la carpeta **`Salida`** con los textos. Los audios ya procesados quedan guardados en **`Hecho`**.
 
-Por cada archivo se generan dos: un `.txt` con el texto corrido para leer o pegar en un documento, y un `.srt` con las marcas de tiempo, que sirve para subtítulos y para ubicar un pasaje dentro de la grabación.
+Por cada grabación queda un solo archivo, un `.txt` con el texto corrido, listo para leer o pegar en un documento.
+
+El menú ofrece tres alternativas a la opción normal:
+
+| Opción | Cuándo usarla |
+|---|---|
+| **2**, máxima precisión | Audio difícil: eco, varias personas hablando encima, ruido de fondo, una llamada de mala calidad. Demora unas tres veces más y se equivoca bastante menos |
+| **3**, otro idioma | El audio no está en español. Se escribe el código del idioma, o `auto` para que lo detecte solo |
+| **4**, marcas de tiempo | El `.txt` lleva `[hh:mm:ss]` al inicio de cada párrafo. Para actas, y para volver al minuto exacto de la grabación cuando hay que verificar algo |
 
 La primera transcripción demora más que las demás porque descarga el modelo, cerca de 1 GB. Las siguientes arrancan de inmediato.
 
@@ -45,7 +66,7 @@ Para usarlas hay que correrlo desde la terminal, parado en esta carpeta:
 | `python transcribir.py --lang auto` | Detecta el idioma de cada archivo |
 | `python transcribir.py --lang en` | Fuerza inglés |
 | `python transcribir.py --con-tiempos` | El `.txt` lleva `[hh:mm:ss]` al inicio de cada línea |
-| `python transcribir.py --no-srt` | Genera solo el `.txt` |
+| `python transcribir.py --srt` | Genera además un `.srt` de subtítulos |
 
 También puede arrastrar esas opciones al `.bat`, o crear un acceso directo con la opción escrita al final.
 
@@ -59,7 +80,7 @@ También puede arrastrar esas opciones al `.bat`, o crear un acceso directo con 
 
 **El texto sale en otro idioma o sin sentido.** El audio no estaba en español; use `--lang auto` o indique el idioma.
 
-**El texto tiene errores en nombres propios y cifras.** Es normal en cualquier transcripción automática. Revise siempre contra el audio antes de usar el texto en un documento que salga de la oficina; el `.srt` ayuda a saltar al minuto exacto.
+**El texto tiene errores en nombres propios y cifras.** Es normal en cualquier transcripción automática. Revise siempre contra el audio antes de usar el texto en un documento que salga de la oficina; la opción **4** del menú, la de marcas de tiempo, le permite saltar al minuto exacto de lo que quiere confirmar.
 
 ## Un aviso sobre las carpetas
 

@@ -1,3 +1,9 @@
+# Material interno de la firma: notas, guiones y borradores. Nunca se sube,
+# porque quien descarga esta carpeta solo debe encontrar el programa.
+NotebookLM*
+notas/
+borradores/
+
 # Material de trabajo: nunca se sube. Aqui hay audio y texto de clientes.
 Entrada/*
 Hecho/*
